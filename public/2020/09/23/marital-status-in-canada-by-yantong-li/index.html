@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="generator" content="Hugo 0.75.1" />
+
+
+<title>Marital Status In Canada by Yantong Li - A Hugo website</title>
+<meta property="og:title" content="Marital Status In Canada by Yantong Li - A Hugo website">
+
+
+  <link href='../../../../favicon.ico' rel='icon' type='image/x-icon'/>
+
+
+
+  
+
+
+
+
+
+
+
+
+<link href='//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/github.min.css' rel='stylesheet' type='text/css' />
+
+
+
+<link rel="stylesheet" href="../../../../css/fonts.css" media="all">
+<link rel="stylesheet" href="../../../../css/main.css" media="all">
+
+
+
+  </head>
+  <body>
+    <div class="wrapper">
+      <header class="header">
+        <nav class="nav">
+  <a href="../../../../" class="nav-logo">
+    <img src="../../../../images/logo.png"
+         width="50"
+         height="50"
+         alt="Logo">
+  </a>
+
+  <ul class="nav-links">
+    
+    <li><a href="../../../../about/">About</a></li>
+    
+    <li><a href="https://github.com/rstudio/blogdown">GitHub</a></li>
+    
+    <li><a href="https://twitter.com/rstudio">Twitter</a></li>
+    
+  </ul>
+</nav>
+
+      </header>
+
+
+<main class="content" role="main">
+
+  <article class="article">
+    
+    <span class="article-duration">5 min read</span>
+    
+
+    <h1 class="article-title">Marital Status In Canada by Yantong Li</h1>
+
+    
+    <span class="article-date">2020-09-23</span>
+    
+
+    <div class="article-content">
+      
+
+
+<pre class="r"><code># install.packages(&quot;devtools&quot;)
+# devtools::install_github(&quot;hodgettsp/cesR&quot;)
+library(tidyverse)</code></pre>
+<p>Link for Github:
+<a href="https://github.com/liyanto1/Assignment1" class="uri">https://github.com/liyanto1/Assignment1</a></p>
+<div id="abstract" class="section level1">
+<h1>Abstract</h1>
+<p>In 2019 Canadian Election Survey, we find the distribution of Marital Status. Most of people are married or living with partners but with high divorced rate. Single people are also accounts for a relatively large proportion.</p>
+</div>
+<div id="introduction" class="section level1">
+<h1>Introduction</h1>
+<p>In 2019, 37822 Canadian residents have effectively participated Canadian Election Survey. Among these information, we can obtain the Marital Status of each participant and find most people are currently married or/and living with their partners.</p>
+<p>Based on the dataset, we find that the vast majority of Canadians are non-single, but the divorced rate (including people who are separated) is significantly high. Additionally people who living by themselves also taking a large proportion of the population.</p>
+<p>In this paper, we will provide a detailed analysis of Canadian Marital status including a statistical summary and plot with further discussion. Response error might be one of our weaknesses, in the future, more data should be collected and further analysis related to different age groups will be done.</p>
+<pre class="r"><code>cesR::get_decon()
+## TO CITE THIS SURVEY FILE: Stephenson, Laura B; Harell, Allison; Rubenson, Daniel; Loewen, Peter John, 2020, &#39;2019 Canadian Election Study - Online Survey&#39;,
+##            https://doi.org/10.7910/DVN/DUS88V, Harvard Dataverse, V1
+## LINK: https://dataverse.harvard.edu/dataset.xhtml?persistentId=doi:10.7910/DVN/DUS88V</code></pre>
+</div>
+<div id="data" class="section level1">
+<h1>Data</h1>
+<p>The CES dataset was collected during the Campaign Period Survey: September 13th to October 21st, 2019, and Post-election survey: October 24th to November 11th, 2019. Originally, there are 620 variables and 37822 observations are available, the dataset we are using is the cleaned dataset that contains 22 variables and 37822 observations. Moreover, people who participated the survey are all aged over 18. In this dataset, the non-response problem commonly exists, and for this assignment, I choose the Marital Status since almost everyone has provided the answer to that question.</p>
+<pre class="r"><code>head(decon)
+## # A tibble: 6 x 22
+##   ces_code citizenship yob   gender province_territ… education lr    lr_bef
+##   &lt;chr&gt;    &lt;fct&gt;       &lt;fct&gt; &lt;fct&gt;  &lt;fct&gt;            &lt;fct&gt;     &lt;chr&gt; &lt;chr&gt; 
+## 1 ces2019… Canadian c… 1989  A wom… Quebec           Master&#39;s… 2     &lt;NA&gt;  
+## 2 ces2019… Canadian c… 1998  A wom… Quebec           Master&#39;s… 2     &lt;NA&gt;  
+## 3 ces2019… Canadian c… 2000  A wom… Ontario          Some uni… 4     4     
+## 4 ces2019… Canadian c… 1998  A man  Ontario          Some uni… 7     7     
+## 5 ces2019… Canadian c… 2000  A wom… Ontario          Complete… 4     4     
+## 6 ces2019… Canadian c… 1999  A wom… Ontario          Some uni… 4     4     
+## # … with 14 more variables: lr_aft &lt;chr&gt;, religion &lt;fct&gt;,
+## #   sexuality_selected &lt;fct&gt;, sexuality_text &lt;chr&gt;, language_eng &lt;fct&gt;,
+## #   language_fr &lt;fct&gt;, language_abgl &lt;fct&gt;, employment &lt;fct&gt;, income &lt;dbl&gt;,
+## #   income_cat &lt;fct&gt;, marital &lt;fct&gt;, econ_retro &lt;fct&gt;, econ_fed &lt;fct&gt;,
+## #   econ_self &lt;fct&gt;</code></pre>
+</div>
+<div id="variable-analysis" class="section level1">
+<h1>Variable Analysis</h1>
+<p>The variable we focus on is Marital Status, overall there 37822 - 573 = 37249 people has provided information about their marriage.</p>
+<p>From the summary statistics for this variable:</p>
+<pre class="r"><code>decon %&gt;% group_by(marital) %&gt;% summarise(counts = n(), proportion = counts/nrow(decon)) %&gt;% arrange(desc(proportion))
+## `summarise()` ungrouping output (override with `.groups` argument)
+## # A tibble: 7 x 3
+##   marital                          counts proportion
+##   &lt;fct&gt;                             &lt;int&gt;      &lt;dbl&gt;
+## 1 Married                           17230     0.456 
+## 2 Never Married                      8458     0.224 
+## 3 Living with a partner              6070     0.160 
+## 4 Divorced                           2722     0.0720
+## 5 Widowed                            1395     0.0369
+## 6 Separated                          1374     0.0363
+## 7 Don&#39;t know/ Prefer not to answer    573     0.0151</code></pre>
+<p>A Barplot about the Canadian Marital Status.</p>
+<pre class="r"><code>decon %&gt;% ggplot(aes(x = marital)) + geom_bar(aes(y = ..prop.., group = 1)) + coord_flip() + theme_bw() + labs(x = &quot;Marital Status&quot;, y = &quot;Proportion&quot;, title = &quot;Marital Status In Canada&quot;, caption = &quot;2019 CES dataset&quot;) </code></pre>
+<p><img src="../../../../post/2015-07-23-r-rmarkdown_files/figure-html/unnamed-chunk-4-1.png" width="672" /></p>
+<div id="graph-discussion" class="section level2">
+<h2>Graph Discussion</h2>
+<p>In this graph, we find the most frequent status of marriage in the dataset is “Married” (nearly 50%). the next most frequent status of marriage is “Never Married” (over 20%), and followed by “Living with a partner” (15%). People who fall in other category has relatively less proportion over the population.</p>
+</div>
+</div>
+<div id="discussion" class="section level1">
+<h1>Discussion</h1>
+<p>If we can combine “Married” and “Living with a partner”, we will see the vast majority (around 60%) are currently accommodated with their spouse. Similar logic, people who are “Divorced” or “Separated” are taking 10.83 % of the population. Comparatively, people who are “Divorced” or “Separated” have taken a heavy proportion over the entire population.</p>
+<p>Many are saying Canada has relatively higher divorce rates over other countries, this statement definitely can be supported by our dataset and discussion above. Furthermore, there are approximately 40% of people are currently living on their own. It might be shocking from our common understanding; single people are surprisingly higher than my expectation.</p>
+<div id="weaknesses-and-next-steps" class="section level2">
+<h2>Weaknesses and next steps</h2>
+<p>The self-report method has been used for the survey. One of our weaknesses is response error, people might not honestly provide their marriage status. In the next steps, more data should be collected so that we can reduce the response error; marital status can be further analyzed within different age categories which can provide us a better understanding of Canadian marriages.</p>
+</div>
+</div>
+<div id="references" class="section level1">
+<h1>References</h1>
+<ul>
+<li>Stephenson, Laura B; Harell, Allison; Rubenson, Daniel; Loewen, Peter John, 2020, ‘2019 Canadian Election Study - Online Survey’, <a href="https://doi.org/10.7910/DVN/DUS88V" class="uri">https://doi.org/10.7910/DVN/DUS88V</a>, Harvard Dataverse, V1</li>
+<li>Paul A. Hodgetts and Rohan Alexander (2020). cesR: Access the CES Datasets a Little Easier.. R package version 0.1.0.</li>
+<li>Hadley Wickham, Jim Hester and Winston Chang (2020). devtools: Tools to Make Developing R Packages Easier. <a href="https://devtools.r-lib.org/,https://github.com/r-lib/devtools" class="uri">https://devtools.r-lib.org/,https://github.com/r-lib/devtools</a>.</li>
+<li>R Core Team (2020). R: A language and environment for statistical computing. R, Foundation for Statistical Computing, Vienna, Austria. URL, <a href="https://www.R-project.org/" class="uri">https://www.R-project.org/</a>.</li>
+<li>JJ Allaire and Yihui Xie and Jonathan McPherson and Javier Luraschi and Kevin Ushey and Aron Atkins and Hadley Wickham and Joe Cheng and Winston Chang and Richard Iannone (2020). rmarkdown: Dynamic Documents for R. R package version 2.3. URL <a href="https://rmarkdown.rstudio.com" class="uri">https://rmarkdown.rstudio.com</a>.</li>
+</ul>
+</div>
+
+    </div>
+  </article>
+
+  
+
+
+</main>
+
+      <footer class="footer">
+        <ul class="footer-links">
+          <li>
+            <a href="../../../../index.xml" type="application/rss+xml" target="_blank">RSS feed</a>
+          </li>
+          <li>
+            <a href="https://gohugo.io/" class="footer-links-kudos">Made with <img src="../../../../images/hugo-logo.png" alt="Img link to Hugo website" width="22" height="22"></a>
+          </li>
+        </ul>
+      </footer>
+
+    </div>
+    
+
+
+
+<script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
+
+
+
+<script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/languages/r.min.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/languages/yaml.min.js"></script>
+<script>hljs.configure({languages: []}); hljs.initHighlightingOnLoad();</script>
+
+
+
+    
+
+    
+  </body>
+</html>
+
